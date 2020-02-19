@@ -10,7 +10,6 @@
           v-model="selectedFluid"
           :items="fluids"
           item-text="name"
-          item-value="value"
           :rules="[v => !!v || 'You have to choose fluid']"
           label="Fluid"
           :disabled="isRunning"

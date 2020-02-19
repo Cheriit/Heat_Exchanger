@@ -11,16 +11,22 @@
           <v-col class="col-lg-8 col-12">
             <chart
               :chart-data="temperatureData"
+              :chart-labels="chartLabels"
+              chart-color="#d32f2f7a"
               title="Temperature over time chart"
               :height="352"
               class="mb-3"
+              y-axis-label="Temperature [oC]"
             />
             <v-fade-transition>
               <chart
                 v-if="isLive"
                 :chart-data="volumeData"
+                :chart-labels="chartLabels"
+                chart-color="#1e88e57a"
                 title="Water volume over time chart"
                 :height="264"
+                y-axis-label="Volume [l]"
               />
             </v-fade-transition>
           </v-col>
@@ -28,7 +34,7 @@
             <data-form
               @changedIsLive="updateIsLive"
               @stopSimulation="stopSimulation"
-              @runSimulation="runSimulation"
+              @startSimulation="startSimulation"
               @pauseSimulation="pauseSimulation"
               @updateLiveData="updateLiveData"
             />
@@ -50,29 +56,23 @@ export default {
     Chart
   },
   data: () => ({
-    temperatureData: {},
-    volumeData: {},
+    temperatureData: [],
+    volumeData: [],
+    chartLabels: [],
     isLive: false,
     isPaused: false,
-    formData: {}
+    formData: {},
+    intervalId: 0
   }),
   methods: {
     fillData() {
-      this.temperatureData = {
-        labels: [this.getRandomInt(), this.getRandomInt()],
-        datasets: [
-          {
-            label: "Data One",
-            backgroundColor: "#f87979",
-            data: [this.getRandomInt(), this.getRandomInt()]
-          },
-          {
-            label: "Data One",
-            backgroundColor: "#f87979",
-            data: [this.getRandomInt(), this.getRandomInt()]
-          }
-        ]
-      };
+      this.temperatureData = [this.getRandomInt(), this.getRandomInt()];
+      this.chartLabels = [this.getRandomInt(), this.getRandomInt()];
+    },
+    appendData() {
+      this.temperatureData = [...this.temperatureData, this.getRandomInt()];
+      this.volumeData = [...this.volumeData, this.getRandomInt()];
+      this.chartLabels = [...this.chartLabels, this.getRandomInt()];
     },
     getRandomInt() {
       return Math.floor(Math.random() * (50 - 5 + 1)) + 5;
@@ -81,18 +81,26 @@ export default {
       this.isLive = isLive;
     },
     stopSimulation() {
+      clearInterval(this.intervalId);
       this.isPaused = false;
-      this.temperatureData = { labels: [], datasets: [] };
-      this.volumeData = { labels: [], datasets: [] };
+      this.temperatureData = [];
+      this.volumeData = [];
+      this.chartLabels = [];
     },
-    runSimulation(data) {
+    startSimulation(data) {
       this.formData = data;
       this.isPaused = false;
       // RUN REQUEST IN LOOP IF isLive
+      if (this.isLive) {
+        this.intervalId = setInterval(() => this.appendData(), 1000);
+      } else {
+        this.fillData();
+      }
     },
     pauseSimulation() {
       this.isPaused = true;
       // Stop runSimulation
+      clearInterval(this.intervalId);
     },
     updateLiveData(data) {
       this.formData = { ...this.formData, data };

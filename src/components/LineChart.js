@@ -6,17 +6,11 @@ export default {
   extends: Line,
   mixins: [reactiveProp],
   props: {
-    chartData: {
-      type: Object,
-      default: null
-    },
+    chartData: {},
     options: {
       type: Object,
       default: function() {
-        return {
-          responsive: true,
-          maintainAspectRatio: false
-        };
+        return {};
       }
     }
   },
