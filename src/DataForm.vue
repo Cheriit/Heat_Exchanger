@@ -1,0 +1,270 @@
+<template>
+  <v-card raised loading="isRunning && isLive">
+    <v-card-title>
+      Specification
+    </v-card-title>
+    <v-card-text>
+      <h1>Main params:</h1>
+      <v-form ref="form" v-model="isValid" lazy-validation>
+        <v-select
+          v-model="selectedFluid"
+          :items="fluids"
+          item-text="name"
+          item-value="value"
+          :rules="[v => !!v || 'You have to choose fluid']"
+          label="Fluid"
+          :disabled="isRunning"
+          required
+        ></v-select>
+        <v-row>
+          <v-col class="col-lg-6 col-12">
+            <v-text-field
+              v-model="heatArea"
+              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
+              label="Heat area"
+              hide-details="auto"
+              :disabled="isRunning"
+              required
+              dense
+            >
+              <template slot="append">[m<span class="sup">2</span>] </template>
+            </v-text-field>
+          </v-col>
+          <v-col class="col-lg-6 col-12">
+            <v-text-field
+              v-model="heatCoefficiency"
+              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
+              label="Heat coefficiency"
+              hide-details="auto"
+              :disabled="isRunning"
+              required
+              dense
+            >
+              <template slot="append"
+                >[W/m<span class="sup">2 o</span>C]
+              </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col class="col-lg-6 col-12">
+            <v-text-field
+              v-model="timestamp"
+              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
+              label="Timestamp"
+              hide-details="auto"
+              :disabled="isRunning"
+              required
+              dense
+            >
+              <template slot="append">[h]</template>
+            </v-text-field>
+          </v-col>
+          <v-col class="col-lg-6 col-12">
+            <v-text-field
+              v-model="targetTemp"
+              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
+              label="Target temperature"
+              hide-details="auto"
+              :disabled="isRunning"
+              required
+              dense
+            >
+              <template slot="append">[<span class="sup">o</span>C] </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col class="col-lg-6 col-12">
+            <v-text-field
+              v-model="startVolume"
+              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
+              label="Fluid vol. at the start"
+              hide-details="auto"
+              :disabled="isRunning"
+              required
+              dense
+            >
+              <template slot="append">[l]</template>
+            </v-text-field>
+          </v-col>
+          <v-col class="col-lg-6 col-12">
+            <v-text-field
+              v-model="startTemp"
+              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
+              label="Fluid temp. at the start"
+              hide-details="auto"
+              :disabled="isRunning"
+              required
+              dense
+            >
+              <template slot="append">[<span class="sup">o</span>C] </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
+        <v-checkbox
+          v-model="isLive"
+          label="Live simulation"
+          dense
+          @change="changeIsLive"
+        ></v-checkbox>
+        <v-expand-transition>
+          <div v-if="isLive">
+            <h1>Live simulation params</h1>
+            <v-col cols="12">
+              <v-subheader class="pl-0"
+                >Temp. of pouring in water [<span class="sup">o</span>C]
+              </v-subheader>
+              <v-slider
+                class="mt-3"
+                v-model="tempIn"
+                :thumb-size="24"
+                thumb-label="always"
+                @change="updateLiveData"
+                hide-details
+                dense
+              ></v-slider>
+            </v-col>
+            <v-col cols="12">
+              <v-subheader class="pl-0"
+                >Vol. of pouring in water per hour [l/h]
+              </v-subheader>
+              <v-slider
+                class="mt-3"
+                v-model="volIn"
+                :thumb-size="24"
+                thumb-label="always"
+                max="500"
+                @change="updateLiveData"
+                hide-details
+                dense
+              ></v-slider>
+            </v-col>
+            <v-col cols="12">
+              <v-subheader class="pl-0"
+                >Vol. of pouring out water per hour [l/h]
+              </v-subheader>
+              <v-slider
+                class="mt-3"
+                v-model="volOut"
+                :thumb-size="24"
+                thumb-label="always"
+                max="500"
+                @change="updateLiveData"
+                hide-details
+                dense
+              ></v-slider>
+            </v-col>
+          </div>
+        </v-expand-transition>
+      </v-form>
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer />
+      <v-btn
+        color="success"
+        icon
+        :disabled="!isValid || (!isLive && isRunning) || (isLive && !isPaused)"
+        @click="runSimulation"
+      >
+        <v-icon dark right>mdi-play</v-icon>
+      </v-btn>
+      <v-fade-transition>
+        <v-btn
+          color="primary"
+          icon
+          v-if="isLive"
+          :disabled="!isRunning || isPaused"
+          @click="pauseSimulation"
+        >
+          <v-icon dark right>mdi-pause</v-icon>
+        </v-btn>
+      </v-fade-transition>
+      <v-btn color="error" icon :disabled="!isRunning" @click="stopSimulation">
+        <v-icon dark right>mdi-stop</v-icon>
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+</template>
+<script>
+export default {
+  name: "data-form",
+  data: () => ({
+    isLive: false,
+    isValid: false,
+    isRunning: false,
+    isPaused: true,
+    selectedFluid: null,
+    fluids: [{ name: "water", value: { heat: 1, density: 20 } }],
+    heatArea: 0,
+    heatCoefficiency: 0,
+    timestamp: 0,
+    targetTemp: 0,
+    startVolume: 0,
+    startTemp: 0,
+    tempIn: 0,
+    volIn: 0,
+    volOut: 0
+  }),
+  methods: {
+    runSimulation() {
+      if (this.selectedFluid != null) {
+        this.isRunning = true;
+        this.isPaused = false;
+        const {
+          heatArea,
+          heatCoefficiency,
+          timestamp,
+          targetTemp,
+          startVolume,
+          startTemp,
+          tempIn,
+          volIn,
+          volOut
+        } = this;
+        this.$emit("startSimulation", {
+          heatArea,
+          heatCoefficiency,
+          timestamp,
+          targetTemp,
+          startVolume,
+          startTemp,
+          tempIn,
+          volIn,
+          volOut
+        });
+      }
+    },
+    pauseSimulation() {
+      this.isPaused = true;
+      this.$emit("pauseSimulation");
+    },
+    stopSimulation() {
+      this.isRunning = false;
+      this.isPaused = true;
+      this.$emit("stopSimulation");
+    },
+    changeIsLive() {
+      this.stopSimulation();
+      this.$emit("changedIsLive", this.isLive);
+    },
+    updateLiveData() {
+      const { tempIn, volIn, volOut } = this;
+      this.$emit("updateLiveData", {
+        tempIn,
+        volIn,
+        volOut
+      });
+    }
+  },
+  mounted() {
+    // GET DATA FROM SERVER
+  }
+};
+</script>
+<style type="scss">
+.sup {
+  vertical-align: super;
+  font-size: 10px;
+}
+</style>
