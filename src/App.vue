@@ -70,6 +70,7 @@ export default {
       this.chartLabels = [this.getRandomInt(), this.getRandomInt()];
     },
     appendData() {
+      console.log(this.formData);
       this.temperatureData = [...this.temperatureData, this.getRandomInt()];
       this.volumeData = [...this.volumeData, this.getRandomInt()];
       this.chartLabels = [...this.chartLabels, this.getRandomInt()];
@@ -94,6 +95,7 @@ export default {
       if (this.isLive) {
         this.intervalId = setInterval(() => this.appendData(), 1000);
       } else {
+        console.log(this.formData);
         this.fillData();
       }
     },
@@ -103,7 +105,7 @@ export default {
       clearInterval(this.intervalId);
     },
     updateLiveData(data) {
-      this.formData = { ...this.formData, data };
+      this.formData = { ...this.formData, ...data };
     }
   },
   mounted: function() {
