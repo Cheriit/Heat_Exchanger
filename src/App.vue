@@ -48,6 +48,7 @@
 <script>
 import Chart from "./Chart";
 import DataForm from "./DataForm";
+import axios from "axios";
 
 export default {
   name: "App",
@@ -96,7 +97,16 @@ export default {
         this.intervalId = setInterval(() => this.appendData(), 1000);
       } else {
         console.log(this.formData);
-        this.fillData();
+        axios
+          .get("http://127.0.0.1:5000/get_water_temperature", {
+            params: this.formData
+          })
+          .then(data => {
+            console.log(data);
+          })
+          .catch(error => {
+            console.log(error);
+          });
       }
     },
     pauseSimulation() {

@@ -186,6 +186,8 @@
   </v-card>
 </template>
 <script>
+import axios from "axios";
+
 export default {
   name: "data-form",
   data: () => ({
@@ -257,7 +259,20 @@ export default {
     }
   },
   mounted() {
-    // GET DATA FROM SERVER
+    axios
+      .get("http://127.0.0.1:5000/get_liquids", {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        }
+      })
+      .then(({data}) => {
+        this.fluids = data.map(data => {
+          return {name: data[0], density: data[1], heatSpecific: data[2]}
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 };
 </script>

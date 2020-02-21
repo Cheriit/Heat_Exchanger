@@ -1,10 +1,13 @@
 from flask import Flask, Response, request, jsonify
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
+from flask_cors import CORS
 import io
 import random
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
+
+
 
 # @app.route('/get_temperature')
 # def get_temperature():
