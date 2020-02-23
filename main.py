@@ -21,26 +21,14 @@ def get_liquids():
 
 @app.route('/get_water_temperature')
 def get_water_temperature():
-<<<<<<< HEAD
-    heat_coefficiency = int(request.args.get('heatCoefficiency'))
-    heat_specific = int(request.args.get('heatSpecific'))
-    heat_transmission_area = int(request.args.get('heatArea'))
-    initial_temp = int(request.args.get('startTemp'))
-    timestamp = int(request.args.get('timestamp'))
-    temperature_limit = int(request.args.get('targetTemp'))
-    volume = int(request.args.get('startVolume')) /1000
-    density = int(request.args.get('density'))
-=======
     heat_coefficiency = float(request.args.get('heatCoefficiency'))
     heat_specific = float(request.args.get('heatSpecific'))
-    heat_transmission_area = float(request.args.get('heatArea'))
-    initial_temp = float(request.args.get('startTemp'))
+    density = float(request.args.get('density'))
+    volume = float(request.args.get('startVolume')) / 1000
+    startTemp = float(request.args.get('startTemp'))
+    power = float(request.args.get('power'))
     timestamp = float(request.args.get('timestamp'))
     temperature_limit = float(request.args.get('targetTemp'))
-    volume = float(request.args.get('startVolume')) /1000
-    density = float(request.args.get('density'))
-    startTemp = float(request.args.get('startTemp'))
->>>>>>> 643c343fa274e2040f4b72b71ffbdbd2cba859a5
 
     mass = volume * density
     y = startTemp
@@ -51,18 +39,17 @@ def get_water_temperature():
     time_current = 0
 
     while y < temperature_limit:
-        y = (heat_coefficiency * heat_transmission_area * timestamp) / (mass * heat_specific) + y
+        y = (power * timestamp) / (mass * heat_specific) + y
         result['temperatures'].append(y)
-        result['times'].append(time_current)
+        result['times'].append(round(time_current/60, 2))
         time_current += timestamp
 
     return jsonify(result)
 
 @app.route('/get_live_simulation')
 def get_live_simulation():
-    heat_coefficiency = float(request.args.get('heatCoefficiency'))
     heat_specific = float(request.args.get('heatSpecific'))
-    heat_transmission_area = float(request.args.get('heatArea'))
+    power = float(request.args.get('power'))
     volume_in = float(request.args.get('volIn')) /1000
     volume_out = float(request.args.get('volOut')) /1000
     volume_old = float(request.args.get('startVolume')) /1000
@@ -72,17 +59,21 @@ def get_live_simulation():
     temperature_in = float(request.args.get('tempIn'))
     density = float(request.args.get('density'))
 
-    temperature_next = (volume_in*timestamp*(temperature_current - temperature_in) - temperature_current*(volume_old - volume_out*timestamp)) / \
-                        (volume_out*timestamp - volume_old)
-    volume_current = volume_in * timestamp + volume_old - volume_out * timestamp
-    if volume_current < 0:
-        volume_current = 0
-    mass = volume_current * density
-
-    if temperature_next < temperature_limit:
-        temperature_2 = (heat_coefficiency * heat_transmission_area * timestamp) / (mass * heat_specific) + temperature_next
+    timestamp_hour = timestamp/3600
+    volume_current = volume_old-volume_out*timestamp_hour+volume_in*timestamp_hour
+    if volume_current > 0:
+        if(temperature_current > temperature_in):
+            temperature_next = ((volume_old-volume_out*timestamp_hour)*temperature_current+volume_in*timestamp_hour*temperature_in)/volume_current
+        else:
+            temperature_next = ((volume_old-volume_out*timestamp_hour)*temperature_in+volume_in*timestamp_hour*temperature_current)/volume_current
+        mass = volume_current * density
+        if temperature_next < temperature_limit:
+            temperature_2 = (power * timestamp) / (mass * heat_specific) + temperature_next
+        else:
+            temperature_2 = temperature_next
     else:
-        temperature_2 = temperature_next
+        volume_current = 0
+        temperature_2 = 0
 
     result = {
         'volume': volume_current*1000,

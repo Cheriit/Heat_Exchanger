@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
-        <h1>Heat exchanger</h1>
+        <h1>Boiler simulator</h1>
       </div>
     </v-app-bar>
     <v-content>
@@ -88,7 +88,7 @@ export default {
           this.volumeData = [...this.volumeData, data.volume];
           this.chartLabels = [
             ...this.chartLabels,
-            this.formData.timestamp * this.chartLabels.length
+            this.formData.timestamp * this.chartLabels.length / 60
           ];
           this.prevVolume = data.volume;
           this.prevTemp = data.temperature;

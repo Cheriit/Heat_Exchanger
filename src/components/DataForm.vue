@@ -16,32 +16,17 @@
           required
         ></v-select>
         <v-row>
-          <v-col class="col-lg-6 col-12">
+          <v-col class="col-12">
             <v-text-field
-              v-model="heatArea"
-              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
-              label="Heat area"
+              v-model="power"
+              :rules="[v => (!isNaN(v) && v>0) || 'You must enter a valid number!  ']"
+              label="Power"
               hide-details="auto"
               :disabled="isRunning"
               required
               dense
             >
-              <template slot="append">[m<span class="sup">2</span>] </template>
-            </v-text-field>
-          </v-col>
-          <v-col class="col-lg-6 col-12">
-            <v-text-field
-              v-model="heatCoefficiency"
-              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
-              label="Heat coefficiency"
-              hide-details="auto"
-              :disabled="isRunning"
-              required
-              dense
-            >
-              <template slot="append"
-                >[W/m<span class="sup">2 o</span>C]
-              </template>
+              <template slot="append">[W] </template>
             </v-text-field>
           </v-col>
         </v-row>
@@ -49,20 +34,20 @@
           <v-col class="col-lg-6 col-12">
             <v-text-field
               v-model="timestamp"
-              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
+              :rules="[v => (!isNaN(v) && v>0) || 'You must enter a valid number!  ']"
               label="Timestamp"
               hide-details="auto"
               :disabled="isRunning"
               required
               dense
             >
-              <template slot="append">[h]</template>
+              <template slot="append">[s]</template>
             </v-text-field>
           </v-col>
           <v-col class="col-lg-6 col-12">
             <v-text-field
               v-model="targetTemp"
-              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
+              :rules="[v => (!isNaN(v) && v>0) || 'You must enter a valid number!  ']"
               label="Target temperature"
               hide-details="auto"
               :disabled="isRunning"
@@ -77,7 +62,7 @@
           <v-col class="col-lg-6 col-12">
             <v-text-field
               v-model="startVolume"
-              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
+              :rules="[v => (!isNaN(v) && v>0) || 'You must enter a valid number!  ']"
               label="Fluid vol. at the start"
               hide-details="auto"
               :disabled="isRunning"
@@ -90,7 +75,7 @@
           <v-col class="col-lg-6 col-12">
             <v-text-field
               v-model="startTemp"
-              :rules="[v => !isNaN(v) || 'You must enter a valid number!  ']"
+              :rules="[v => (!isNaN(v) && v>0) || 'You must enter a valid number!  ']"
               label="Fluid temp. at the start"
               hide-details="auto"
               :disabled="isRunning"
@@ -133,7 +118,7 @@
                 v-model="volIn"
                 :thumb-size="24"
                 thumb-label="always"
-                max="500"
+                max="999"
                 @change="updateLiveData"
                 hide-details
                 dense
@@ -148,7 +133,7 @@
                 v-model="volOut"
                 :thumb-size="24"
                 thumb-label="always"
-                max="500"
+                max="999"
                 @change="updateLiveData"
                 hide-details
                 dense
@@ -197,8 +182,7 @@ export default {
     isPaused: true,
     selectedFluid: null,
     fluids: [],
-    heatArea: 0,
-    heatCoefficiency: 0,
+    power: 0,
     timestamp: 0,
     targetTemp: 0,
     startVolume: 0,
@@ -209,12 +193,11 @@ export default {
   }),
   methods: {
     runSimulation() {
-      if (this.selectedFluid != null && this.startVolume > 0 && this.heatArea > 0 && this.heatCoefficiency > 0 && this.timestamp > 0) {
+      if (this.selectedFluid != null && this.startVolume > 0 && this.power > 0 && this.timestamp > 0) {
         this.isRunning = true;
         this.isPaused = false;
         const {
-          heatArea,
-          heatCoefficiency,
+          power,
           timestamp,
           targetTemp,
           startVolume,
@@ -228,8 +211,7 @@ export default {
         const density = selectedFluidFiltered.density;
         const heatSpecific = selectedFluidFiltered.heatSpecific;
         this.$emit("startSimulation", {
-          heatArea,
-          heatCoefficiency,
+          power,
           timestamp,
           targetTemp,
           startVolume,
@@ -273,6 +255,7 @@ export default {
       })
       .then(({data}) => {
         this.fluids = data;
+        this.selectedFluid = data[0].name;
       })
       .catch(error => {
         console.log(error);

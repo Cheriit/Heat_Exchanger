@@ -78,7 +78,7 @@ export default {
               },
               scaleLabel: {
                 display: true,
-                labelString: "Time [h]"
+                labelString: "Time [min]"
               }
             }
           ]
@@ -90,7 +90,10 @@ export default {
           enabled: true,
           callbacks: {
             title: tooltopitems => {
-              return `Time: ${tooltopitems[0].xLabel}h`;
+              return `Time: ${tooltopitems[0].xLabel} min`;
+            },
+            label: tooltipItem => {
+              return `${tooltipItem.yLabel.toFixed(2)} oC`;
             }
           }
         },
