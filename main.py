@@ -40,7 +40,7 @@ def get_water_temperature():
     time_current = 0
 
     while y < temperature_limit:
-        y = (heat_coefficiency * heat_transmission_area * time_current) / (mass * heat_specific) + y
+        y = (heat_coefficiency * heat_transmission_area * timestamp) / (mass * heat_specific) + y
         result['temperatures'].append(y)
         result['times'].append(time_current)
         time_current += timestamp
@@ -79,14 +79,6 @@ def get_live_simulation():
     }
 
     return jsonify(result)
-
-def create_chart():
-    fig = Figure()
-    axis = fig.add_subplot(1,1,1)
-    xs = range(100)
-    ys = [random.randint(1,50) for x in xs]
-    axis.plot(xs, ys)
-    return fig
 
 if __name__ == '__main__':
     app.run(debug=True)
