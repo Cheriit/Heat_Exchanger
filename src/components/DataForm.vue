@@ -118,7 +118,7 @@
                 v-model="volIn"
                 :thumb-size="24"
                 thumb-label="always"
-                max="500"
+                max="999"
                 @change="updateLiveData"
                 hide-details
                 dense
@@ -133,7 +133,7 @@
                 v-model="volOut"
                 :thumb-size="24"
                 thumb-label="always"
-                max="500"
+                max="999"
                 @change="updateLiveData"
                 hide-details
                 dense
