@@ -1,37 +1,46 @@
 from flask import Flask, Response, request, jsonify
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
 import io
 import random
 
 app = Flask(__name__)
-
-# @app.route('/get_temperature')
-# def get_temperature():
-
-#     chart = create_temperature_chart()
     
 @app.route('/get_liquids')
 def get_liquids():
     liquids = [("Water", 4190, 997), ("Linseed oil", 1840, 924), ("Kerosene", 2100, 820)]
-    return jsonify(liquids)
+    result = []
+    for x,y,z in liquids:
+        result.append({
+            'name': x,
+            'heatSpecific': y,
+            'density': z
+        })
+
+    return jsonify(result)
 
 @app.route('/get_water_temperature')
 def get_water_temperature():
     heat_coefficiency = int(request.args.get('heatCoefficiency'))
     heat_specific = int(request.args.get('heatSpecific'))
     heat_transmission_area = int(request.args.get('hearArea'))
-    mass = int(request.args.get('mass'))
     initial_temp = int(request.args.get('startTemp'))
     timestamp = int(request.args.get('timestamp'))
     temperature_limit = int(request.args.get('targetTemp'))
+    volume = int(request.args.get('startVolume')) /1000
+    density = int(request.args.get('density'))
 
+    mass = volume * density
     y = 0
     result = []
+    time_current = 0
 
     while y < temperature_limit:
-        y = (heat_coefficiency * heat_transmission_area * timestamp) / (mass * heat_specific) + initial_temp
-        result.append(y)
+        y = (heat_coefficiency * heat_transmission_area * time_current) / (mass * heat_specific) + y
+        #result.append((y, time_current))
+        result.append({
+            'temperature': y,
+            'time': time_current
+        })
+        time_current += timestamp
 
     return jsonify(result)
 
@@ -41,9 +50,9 @@ def get_live_simulation():
     heat_specific = int(request.args.get('heatSpecific'))
     heat_transmission_area = int(request.args.get('heatArea'))
     mass = int(request.args.get('mass'))
-    volume_in = int(request.args.get('volIn'))
-    volume_out = int(request.args.get('volOut'))
-    volume_old = int(request.args.get('startVolume'))
+    volume_in = int(request.args.get('volIn')) /1000
+    volume_out = int(request.args.get('volOut')) /1000
+    volume_old = int(request.args.get('startVolume')) /1000
     time_old = int(request.args.get('timeOld'))
     timestamp = int(request.args.get('timestamp'))
     temperature_limit = int(request.args.get('targetTemp'))
@@ -58,7 +67,14 @@ def get_live_simulation():
     
     temperature_2 = (heat_coefficiency * heat_transmission_area * timestamp) / (mass * heat_specific) + temperature_next
 
-    return jsonify((volume_current, time_current, temperature_2))
+    #return jsonify((volume_current, time_current, temperature_2))
+    result = {
+        'volume': volume_current,
+        'time': time_current,
+        'temperature': temperature_2
+    }
+
+    return jsonify(result)
 
 def create_chart():
     fig = Figure()
