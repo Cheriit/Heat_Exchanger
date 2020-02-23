@@ -209,7 +209,7 @@ export default {
   }),
   methods: {
     runSimulation() {
-      if (this.selectedFluid != null) {
+      if (this.selectedFluid != null && this.startVolume > 0 && this.heatArea > 0 && this.heatCoefficiency > 0 && this.timestamp > 0) {
         this.isRunning = true;
         this.isPaused = false;
         const {
