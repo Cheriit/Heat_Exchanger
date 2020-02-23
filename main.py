@@ -1,9 +1,19 @@
 from flask import Flask, Response, request, jsonify
+from flask_cors import CORS
 import io
 import random
 
 app = Flask(__name__)
-    
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
+
+
+
+# @app.route('/get_temperature')
+# def get_temperature():
+
+#     chart = create_temperature_chart()
+
 @app.route('/get_liquids')
 def get_liquids():
     liquids = [("Water", 4190, 997), ("Linseed oil", 1840, 924), ("Kerosene", 2100, 820)]
