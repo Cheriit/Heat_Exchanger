@@ -13,7 +13,7 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 # def get_temperature():
 
 #     chart = create_temperature_chart()
-    
+
 @app.route('/get_liquids')
 def get_liquids():
     liquids = [("Water", 4190, 997), ("Linseed oil", 1840, 924), ("Kerosene", 2100, 820)]

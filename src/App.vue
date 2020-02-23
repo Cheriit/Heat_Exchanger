@@ -46,8 +46,8 @@
 </template>
 
 <script>
-import Chart from "./Chart";
-import DataForm from "./DataForm";
+import Chart from "./components/Chart";
+import DataForm from "./components/DataForm";
 import axios from "axios";
 
 export default {
@@ -63,21 +63,37 @@ export default {
     isLive: false,
     isPaused: false,
     formData: {},
-    intervalId: 0
+    intervalId: 0,
+    prevTemp: null,
+    prevVolume: null
   }),
   methods: {
-    fillData() {
-      this.temperatureData = [this.getRandomInt(), this.getRandomInt()];
-      this.chartLabels = [this.getRandomInt(), this.getRandomInt()];
-    },
     appendData() {
+      this.formData = {
+        ...this.formData,
+        startTemp: this.prevTemp,
+        startVolume: this.prevVolume
+      };
       console.log(this.formData);
-      this.temperatureData = [...this.temperatureData, this.getRandomInt()];
-      this.volumeData = [...this.volumeData, this.getRandomInt()];
-      this.chartLabels = [...this.chartLabels, this.getRandomInt()];
-    },
-    getRandomInt() {
-      return Math.floor(Math.random() * (50 - 5 + 1)) + 5;
+
+      axios
+        .get("http://127.0.0.1:5000/get_live_simulation", {
+          params: this.formData,
+          headers: {
+            "Access-Control-Allow-Origin": "*"
+          }
+        })
+        .then(data => {
+          console.log(data);
+          // this.temperatureData = [...this.temperatureData, data. ];
+          // this.volumeData = [...this.volumeData, data. ];
+          // this.chartLabels = [...this.chartLabels, data. ];
+          // this.prevVolume = data.;
+          // this.prevTemp = data.;
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     updateIsLive(isLive) {
       this.isLive = isLive;
@@ -88,21 +104,30 @@ export default {
       this.temperatureData = [];
       this.volumeData = [];
       this.chartLabels = [];
+      this.prevTemp = null;
+      this.prevVolume = null;
     },
     startSimulation(data) {
       this.formData = data;
       this.isPaused = false;
-      // RUN REQUEST IN LOOP IF isLive
       if (this.isLive) {
+        if (this.prevTemp === null) {
+          this.prevTemp = data.startTemp;
+          this.prevVolume = data.startVolume;
+        }
         this.intervalId = setInterval(() => this.appendData(), 1000);
       } else {
-        console.log(this.formData);
         axios
           .get("http://127.0.0.1:5000/get_water_temperature", {
-            params: this.formData
+            params: this.formData,
+            headers: {
+              "Access-Control-Allow-Origin": "*"
+            }
           })
           .then(data => {
             console.log(data);
+            // this.temperatureData = data.;
+            // this.chartLabels = data.;
           })
           .catch(error => {
             console.log(error);
@@ -111,15 +136,11 @@ export default {
     },
     pauseSimulation() {
       this.isPaused = true;
-      // Stop runSimulation
       clearInterval(this.intervalId);
     },
     updateLiveData(data) {
       this.formData = { ...this.formData, ...data };
     }
-  },
-  mounted: function() {
-    this.fillData();
   }
 };
 </script>
