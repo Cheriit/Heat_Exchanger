@@ -196,7 +196,7 @@ export default {
     isRunning: false,
     isPaused: true,
     selectedFluid: null,
-    fluids: null,
+    fluids: [],
     heatArea: 0,
     heatCoefficiency: 0,
     timestamp: 0,
