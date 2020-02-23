@@ -272,9 +272,7 @@ export default {
         }
       })
       .then(({data}) => {
-        this.fluids = data.map(data => {
-          return {name: data[0], density: data[2], heatSpecific: data[1]}
-        });
+        this.fluids = data;
       })
       .catch(error => {
         console.log(error);

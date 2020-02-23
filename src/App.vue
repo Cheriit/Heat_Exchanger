@@ -75,7 +75,6 @@ export default {
         startVolume: this.prevVolume
       };
       console.log(this.formData);
-
       axios
         .get("http://127.0.0.1:5000/get_live_simulation", {
           params: this.formData,
@@ -83,13 +82,16 @@ export default {
             "Access-Control-Allow-Origin": "*"
           }
         })
-        .then(data => {
+        .then(({ data }) => {
           console.log(data);
-          // this.temperatureData = [...this.temperatureData, data. ];
-          // this.volumeData = [...this.volumeData, data. ];
-          // this.chartLabels = [...this.chartLabels, data. ];
-          // this.prevVolume = data.;
-          // this.prevTemp = data.;
+          this.temperatureData = [...this.temperatureData, data.temperature];
+          this.volumeData = [...this.volumeData, data.volume];
+          this.chartLabels = [
+            ...this.chartLabels,
+            this.formData.timestamp * this.chartLabels.length
+          ];
+          this.prevVolume = data.volume;
+          this.prevTemp = data.temperature;
         })
         .catch(error => {
           console.log(error);
@@ -114,6 +116,9 @@ export default {
         if (this.prevTemp === null) {
           this.prevTemp = data.startTemp;
           this.prevVolume = data.startVolume;
+          this.temperatureData = [data.startTemp];
+          this.temperatureData = [data.startVolume];
+          this.chartLabels = [];
         }
         this.intervalId = setInterval(() => this.appendData(), 1000);
       } else {
@@ -124,10 +129,9 @@ export default {
               "Access-Control-Allow-Origin": "*"
             }
           })
-          .then(data => {
-            console.log(data);
-            // this.temperatureData = data.;
-            // this.chartLabels = data.;
+          .then(({ data }) => {
+            this.temperatureData = data.temperatures;
+            this.chartLabels = data.times;
           })
           .catch(error => {
             console.log(error);
