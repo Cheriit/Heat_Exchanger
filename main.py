@@ -31,7 +31,7 @@ def get_liquids():
 def get_water_temperature():
     heat_coefficiency = int(request.args.get('heatCoefficiency'))
     heat_specific = int(request.args.get('heatSpecific'))
-    heat_transmission_area = int(request.args.get('hearArea'))
+    heat_transmission_area = int(request.args.get('heatArea'))
     initial_temp = int(request.args.get('startTemp'))
     timestamp = int(request.args.get('timestamp'))
     temperature_limit = int(request.args.get('targetTemp'))
