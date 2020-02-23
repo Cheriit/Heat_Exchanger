@@ -196,7 +196,7 @@ export default {
     isRunning: false,
     isPaused: true,
     selectedFluid: null,
-    fluids: null,
+    fluids: [],
     heatArea: 0,
     heatCoefficiency: 0,
     timestamp: 0,
@@ -209,7 +209,7 @@ export default {
   }),
   methods: {
     runSimulation() {
-      if (this.selectedFluid != null) {
+      if (this.selectedFluid != null && this.startVolume > 0 && this.heatArea > 0 && this.heatCoefficiency > 0 && this.timestamp > 0) {
         this.isRunning = true;
         this.isPaused = false;
         const {
@@ -272,9 +272,7 @@ export default {
         }
       })
       .then(({data}) => {
-        this.fluids = data.map(data => {
-          return {name: data[0], density: data[2], heatSpecific: data[1]}
-        });
+        this.fluids = data;
       })
       .catch(error => {
         console.log(error);
