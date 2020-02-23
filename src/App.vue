@@ -88,7 +88,7 @@ export default {
           this.volumeData = [...this.volumeData, data.volume];
           this.chartLabels = [
             ...this.chartLabels,
-            this.formData.timestamp * this.chartLabels.length / 60
+            (this.formData.timestamp * this.chartLabels.length / 60).toFixed(2)
           ];
           this.prevVolume = data.volume;
           this.prevTemp = data.temperature;
