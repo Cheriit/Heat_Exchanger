@@ -186,6 +186,8 @@
   </v-card>
 </template>
 <script>
+import axios from "axios";
+
 export default {
   name: "data-form",
   data: () => ({
@@ -194,7 +196,7 @@ export default {
     isRunning: false,
     isPaused: true,
     selectedFluid: null,
-    fluids: [{ name: "water", value: { heat: 1, density: 20 } }],
+    fluids: null,
     heatArea: 0,
     heatCoefficiency: 0,
     timestamp: 0,
@@ -219,8 +221,12 @@ export default {
           startTemp,
           tempIn,
           volIn,
-          volOut
+          volOut,
+          selectedFluid
         } = this;
+        const selectedFluidFiltered = this.fluids.filter( x => x.name == selectedFluid)[0];
+        const density = selectedFluidFiltered.density;
+        const heatSpecific = selectedFluidFiltered.heatSpecific;
         this.$emit("startSimulation", {
           heatArea,
           heatCoefficiency,
@@ -230,7 +236,9 @@ export default {
           startTemp,
           tempIn,
           volIn,
-          volOut
+          volOut,
+          density,
+          heatSpecific
         });
       }
     },
@@ -257,7 +265,20 @@ export default {
     }
   },
   mounted() {
-    // GET DATA FROM SERVER
+    axios
+      .get("http://127.0.0.1:5000/get_liquids", {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        }
+      })
+      .then(({data}) => {
+        this.fluids = data.map(data => {
+          return {name: data[0], density: data[2], heatSpecific: data[1]}
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 };
 </script>
