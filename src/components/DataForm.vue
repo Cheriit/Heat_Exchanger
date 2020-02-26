@@ -16,7 +16,7 @@
           required
         ></v-select>
         <v-row>
-          <v-col class="col-12">
+          <v-col class="col-lg-6 col-12">
             <v-text-field
               v-model="power"
               :rules="[v => (!isNaN(v) && v>0) || 'You must enter a valid number!  ']"
@@ -27,6 +27,19 @@
               dense
             >
               <template slot="append">[W] </template>
+            </v-text-field>
+          </v-col>
+          <v-col class="col-lg-6 col-12">
+            <v-text-field
+                    v-model="efficiency"
+                    :rules="[v => (!isNaN(v) && v>0 && v<=100) || 'You must enter a valid number!  ']"
+                    label="Efficiency"
+                    hide-details="auto"
+                    :disabled="isRunning"
+                    required
+                    dense
+            >
+              <template slot="append">% </template>
             </v-text-field>
           </v-col>
         </v-row>
@@ -183,13 +196,14 @@ export default {
     selectedFluid: null,
     fluids: [],
     power: 0,
-    timestamp: 0,
+    timestamp: 10,
     targetTemp: 0,
     startVolume: 0,
     startTemp: 0,
     tempIn: 0,
     volIn: 0,
-    volOut: 0
+    volOut: 0,
+    efficiency: 100
   }),
   methods: {
     runSimulation() {
@@ -205,7 +219,8 @@ export default {
           tempIn,
           volIn,
           volOut,
-          selectedFluid
+          selectedFluid,
+          efficiency
         } = this;
         const selectedFluidFiltered = this.fluids.filter( x => x.name == selectedFluid)[0];
         const density = selectedFluidFiltered.density;
@@ -220,7 +235,8 @@ export default {
           volIn,
           volOut,
           density,
-          heatSpecific
+          heatSpecific,
+          efficiency
         });
       }
     },

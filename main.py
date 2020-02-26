@@ -26,7 +26,10 @@ def get_water_temperature():
     density = float(request.args.get('density'))
     volume = float(request.args.get('startVolume')) / 1000
     startTemp = float(request.args.get('startTemp'))
+
+    efficiency = float(request.args.get('efficiency')) / 100
     power = float(request.args.get('power'))
+
     timestamp = float(request.args.get('timestamp'))
     temperature_limit = float(request.args.get('targetTemp'))
 
@@ -39,7 +42,7 @@ def get_water_temperature():
     time_current = 0
 
     while y < temperature_limit:
-        y = (power * timestamp) / (mass * heat_specific) + y
+        y = (power * efficiency * timestamp) / (mass * heat_specific) + y
         result['temperatures'].append(y)
         result['times'].append(round(time_current/60, 2))
         time_current += timestamp
@@ -58,6 +61,7 @@ def get_live_simulation():
     temperature_current = float(request.args.get('startTemp'))
     temperature_in = float(request.args.get('tempIn'))
     density = float(request.args.get('density'))
+    efficiency = float(request.args.get('efficiency')) / 100
 
     timestamp_hour = timestamp/3600
     volume_current = volume_old-volume_out*timestamp_hour+volume_in*timestamp_hour
@@ -68,7 +72,7 @@ def get_live_simulation():
             temperature_next = ((volume_old-volume_out*timestamp_hour)*temperature_in+volume_in*timestamp_hour*temperature_current)/volume_current
         mass = volume_current * density
         if temperature_next < temperature_limit:
-            temperature_2 = (power * timestamp) / (mass * heat_specific) + temperature_next
+            temperature_2 = (power * efficiency * timestamp) / (mass * heat_specific) + temperature_next
         else:
             temperature_2 = temperature_next
     else:
