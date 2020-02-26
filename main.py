@@ -21,7 +21,6 @@ def get_liquids():
 
 @app.route('/get_water_temperature')
 def get_water_temperature():
-    heat_coefficiency = float(request.args.get('heatCoefficiency'))
     heat_specific = float(request.args.get('heatSpecific'))
     density = float(request.args.get('density'))
     volume = float(request.args.get('startVolume')) / 1000
@@ -66,15 +65,13 @@ def get_live_simulation():
     timestamp_hour = timestamp/3600
     volume_current = volume_old-volume_out*timestamp_hour+volume_in*timestamp_hour
     if volume_current > 0:
-        if(temperature_current > temperature_in):
-            temperature_next = ((volume_old-volume_out*timestamp_hour)*temperature_current+volume_in*timestamp_hour*temperature_in)/volume_current
-        else:
-            temperature_next = ((volume_old-volume_out*timestamp_hour)*temperature_in+volume_in*timestamp_hour*temperature_current)/volume_current
+        temperature_next = ((volume_old-volume_out*timestamp_hour)*temperature_current+volume_in*timestamp_hour*temperature_in)/volume_current
         mass = volume_current * density
         if temperature_next < temperature_limit:
             temperature_2 = (power * efficiency * timestamp) / (mass * heat_specific) + temperature_next
         else:
             temperature_2 = temperature_next
+        
     else:
         volume_current = 0
         temperature_2 = 0

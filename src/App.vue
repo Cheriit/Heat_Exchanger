@@ -117,7 +117,7 @@ export default {
           this.prevTemp = data.startTemp;
           this.prevVolume = data.startVolume;
           this.temperatureData = [data.startTemp];
-          this.temperatureData = [data.startVolume];
+          this.volumeData = [data.startVolume];
           this.chartLabels = [];
         }
         this.intervalId = setInterval(() => this.appendData(), 1000);
