@@ -75,7 +75,7 @@
           <v-col class="col-lg-6 col-12">
             <v-text-field
               v-model="startVolume"
-              :rules="[v => (!isNaN(v) && v>0 && v<100) || 'You must enter a valid number!  ']"
+              :rules="[v => (!isNaN(v) && v>0 ) || 'You must enter a valid number!  ']"
               label="Fluid vol. at the start"
               hide-details="auto"
               :disabled="isRunning"
@@ -88,7 +88,7 @@
           <v-col class="col-lg-6 col-12">
             <v-text-field
               v-model="startTemp"
-              :rules="[v => (!isNaN(v) && v>0) || 'You must enter a valid number!  ']"
+              :rules="[v => (!isNaN(v) && v>0 && v<100) || 'You must enter a valid number!  ']"
               label="Fluid temp. at the start"
               hide-details="auto"
               :disabled="isRunning"
